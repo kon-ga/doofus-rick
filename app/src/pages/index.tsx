@@ -4,8 +4,12 @@ import { Skeleton } from '@/components/ui/skeleton'
 import { edenFetch } from '@elysiajs/eden'
 import { ChangeEvent, useEffect, useMemo, useState } from 'react'
 import type { Server } from '../../../server/src/elysia/Server'
+import { Button } from '@/components/ui/button'
+import { useSearchParams } from 'react-router-dom'
 
 const SKELETON_COUNT = 3
+const DISCORD_URL =
+    'https://discord.com/oauth2/authorize?client_id=914651266758627359&response_type=code&redirect_uri=https%3A%2F%2Fdoofus-rick.josholaus.com&scope=identify'
 
 const fetch = edenFetch<Server>(
     process.env.NODE_ENV === 'development' ? 'http://localhost:3000' : 'https://doofus-rick-api.josholaus.com',
@@ -15,6 +19,7 @@ function RootIndex() {
     const [loading, setLoading] = useState(false)
     const [quotes, setQuotes] = useState<Quote[]>([])
     const [search, setSearch] = useState<string>('')
+    const [searchParams] = useSearchParams()
 
     const computedQuotes = useMemo(
         () =>
@@ -36,6 +41,19 @@ function RootIndex() {
             if (response.data) setQuotes(response.data)
         })
     }, [])
+
+    if (!searchParams.get('code')) {
+        return (
+            <div className="flex justify-center w-full">
+                <Button
+                    onClick={() => {
+                        window.location.href = DISCORD_URL
+                    }}>
+                    Log in with Discord
+                </Button>
+            </div>
+        )
+    }
 
     return (
         <>
